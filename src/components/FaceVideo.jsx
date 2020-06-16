@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useLayoutEffect } from 'react'
 import { Canvas } from './Canvas'
 import { CamVideo } from './CamVideo'
 import styled from 'styled-components'
@@ -75,24 +75,25 @@ export const FaceVideo = () => {
 
     drawVideo()
   }
-  const handleImageCheck = () => {
-    canvas.toBlob(async (blob) => {
-      const formData = new FormData()
 
-      formData.append('image', blob)
+  useLayoutEffect(() => {
+    const handleImageCheck = () => {
+      if (canvas) {
+        canvas.toBlob(async (blob) => {
+          const formData = new FormData()
 
-      const res = await postFaceCheck(formData)
+          formData.append('image', blob)
 
-      dispatch(fetchLog(res))
-      handleImageCheck()
-    }, 'image/png')
-  }
+          const res = await postFaceCheck(formData)
 
-  React.useLayoutEffect(() => {
-    if (canvas) {
-      handleImageCheck()
+          dispatch(fetchLog(res))
+          handleImageCheck()
+        }, 'image/png')
+      }
     }
-  }, [canvas])
+
+    handleImageCheck()
+  }, [canvas, dispatch])
 
   return (
     <StyledFaceVideo>
