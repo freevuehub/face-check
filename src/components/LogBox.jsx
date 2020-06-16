@@ -7,6 +7,11 @@ const StyledLogBox = styled.div`
   box-shadow: 5px 5px 10px #cecece, -5px -5px 10px #ffffff;
   padding: 20px;
   border-radius: 10px;
+  font-size: 20px;
+  font-weight: bold;
+  .error {
+    color: #ff4d4f;
+  }
 `
 
 export const LogBox = () => {
@@ -16,9 +21,11 @@ export const LogBox = () => {
     <StyledLogBox>
       {logValue.returnCode ? (
         <div>
-          {logValue.message
-            ? logValue.message
-            : logValue.returnData.faceRecognition.map(({ name }, idx) => <p key={idx}>{name}</p>)}
+          {logValue.message ? (
+            <p className="error">{logValue.message}</p>
+          ) : (
+            logValue.returnData.faceRecognition.map(({ name }, idx) => <p key={idx}>{name}</p>)
+          )}
         </div>
       ) : (
         'Loading...'
