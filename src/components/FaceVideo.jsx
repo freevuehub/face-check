@@ -87,7 +87,7 @@ export const FaceVideo = () => {
           const res = await postFaceCheck(formData)
 
           dispatch(fetchLog(res))
-          handleImageCheck()
+          // handleImageCheck()
         }, 'image/png')
       }
     }
