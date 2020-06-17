@@ -15,6 +15,10 @@ const StyledApp = styled.section`
   overflow-x: hidden;
   .remote {
     padding: 30px 0;
+    h4 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
   }
   footer {
     margin-top: auto;
@@ -27,6 +31,7 @@ const App = () => {
     <StyledApp>
       <FaceVideo />
       <div className="remote">
+        <h4>얼굴인식은 아직 지원하지 않습니다. 얼굴 윤곽만 잡고 있습니다.</h4>
         <AddImageForm />
         <LogBox />
       </div>
