@@ -5,6 +5,7 @@ import styled from 'styled-components'
 import { postFaceCheck } from '../axios'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchLog } from '../module/log'
+import { FaceModel } from '../utils'
 
 const StyledFaceVideo = styled.div`
   border-radius: 20px;
@@ -59,18 +60,25 @@ export const FaceVideo = () => {
 
     setGrid(dom)
   }
-  const handleCamPlayReady = (dom) => {
+  const handleCamPlayReady = async (dom) => {
+    const faceModel = new FaceModel(dom)
+
+    await faceModel.init()
+
     canvas.width = dom.videoWidth
     canvas.height = dom.videoHeight
 
-    const drawVideo = () => {
+    const drawVideo = async () => {
+      faceModel.run()
+
       ctx.drawImage(dom, 0, 0, dom.videoWidth, dom.videoHeight)
+      ctx.drawImage(faceModel.modelCanvas, 0, 0, dom.videoWidth, dom.videoHeight)
 
       if (grid) {
         ctx.drawImage(grid, 0, 0, dom.videoWidth, dom.videoHeight)
       }
 
-      setTimeout(drawVideo, 1000 / 15)
+      setTimeout(drawVideo, 1000 / 60)
     }
 
     drawVideo()
