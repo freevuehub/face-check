@@ -2,9 +2,8 @@ import React, { useState, useLayoutEffect } from 'react'
 import { Canvas } from './Canvas'
 import { CamVideo } from './CamVideo'
 import styled from 'styled-components'
-import { postFaceCheck } from '../axios'
-import { useDispatch } from 'react-redux'
-import { faceModel, cropCanvas, borderCanvasImage } from '../utils'
+// import { postFaceCheck } from '../axios'
+import { faceModel, borderCanvasImage } from '../utils'
 
 const StyledFaceVideo = styled.div`
   border-radius: 20px;
@@ -14,7 +13,6 @@ const StyledFaceVideo = styled.div`
 `
 
 export const FaceVideo = () => {
-  const dispatch = useDispatch()
   const [ctx, setCtx] = useState()
   const [canvas, setCanvas] = useState()
   const handleFaceCanvasDrawReady = (dom) => {
