@@ -11,7 +11,10 @@ const StyledApp = styled.section`
   justify-content: space-evenly;
   align-items: center;
   flex-wrap: wrap;
+  overflow-y: scroll;
+  overflow-x: hidden;
   .remote {
+    padding: 30px 0;
   }
   footer {
     margin-top: auto;
@@ -27,7 +30,11 @@ const App = () => {
         <AddImageForm />
         <LogBox />
       </div>
-      <footer>FreeVue Copyright © 2020. Made by 홍성준</footer>
+      <footer>
+        FreeVue Copyright © 2020.
+        <br />
+        Made by 추은성-Backend, 홍성준-Frontend
+      </footer>
     </StyledApp>
   )
 }
