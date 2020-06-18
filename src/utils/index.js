@@ -1,4 +1,19 @@
 import * as faceApi from 'face-api.js'
+import { postFaceCheck } from '../axios'
+
+export function* fetchFaceImage(value) {
+  while (true) {
+    yield async () => {
+      const formData = new FormData()
+
+      formData.append('image', value)
+
+      const response = await postFaceCheck(formData)
+
+      return response
+    }
+  }
+}
 
 class SendElement {
   el = ''
@@ -19,22 +34,22 @@ export const MODEL_URL = '/models'
 export class FaceModel {
   constructor() {
     this.modelCanvas = null
-    this.resizedDetections = null
+    this.resizedDetections = []
     this.videoDom = null
     this.displaySize = {}
-    this.faceList = []
+    this.apiFaceList = []
   }
 
   set changeVideoDom(videoDom) {
     this.videoDom = videoDom
   }
 
-  set changeFaceName({ faceName, idx }) {
-    this.faceList[idx].name = faceName
+  set changeApiFaceList(apiFaceList) {
+    this.apiFaceList = apiFaceList
   }
 
-  get getFaceList() {
-    return this.faceList
+  get filterList() {
+    return this.apiFaceList
   }
 
   async init(dom) {
@@ -62,53 +77,91 @@ export class FaceModel {
     }
   }
 
-  async run() {
-    try {
-      if (!this.videoDom) {
-        throw Error('미디어가 없습니다.')
+  async drawArea(..._) {
+    // this.apiFaceList.map((item) => {
+    //   console.log(item)
+
+    //   return item
+    // })
+    const detections = await faceApi
+      .detectAllFaces(this.videoDom, new faceApi.TinyFaceDetectorOptions())
+      .withFaceLandmarks()
+      .withFaceExpressions()
+
+    this.resizedDetections = faceApi.resizeResults(detections, this.displaySize)
+
+    // console.log(this.apiFaceList, this.resizedDetections)
+
+    this.modelCanvas
+      .getContext('2d')
+      .clearRect(0, 0, this.modelCanvas.width, this.modelCanvas.height)
+
+    _.forEach((type) => {
+      switch (type) {
+        case 'border':
+          this.resizedDetections.forEach(({ detection }, idx) => {
+            borderCanvasImage(this.modelCanvas, detection.box).addName(
+              this.apiFaceList[idx] ? this.apiFaceList[idx].name : 'Loading'
+            )
+          })
+          break
+        case 'landmark':
+          faceApi.draw.drawFaceLandmarks(this.modelCanvas, this.resizedDetections)
+          break
+        case 'default-border':
+          faceApi.draw.drawDetections(this.modelCanvas, this.resizedDetections)
+          break
+        case 'expressions':
+          faceApi.draw.drawFaceExpressions(this.modelCanvas, this.resizedDetections)
+          break
+        default:
       }
-
-      const detections = await faceApi
-        .detectAllFaces(this.videoDom, new faceApi.TinyFaceDetectorOptions())
-        .withFaceLandmarks()
-        .withFaceExpressions()
-
-      this.resizedDetections = faceApi.resizeResults(detections, this.displaySize)
-      this.modelCanvas
-        .getContext('2d')
-        .clearRect(0, 0, this.modelCanvas.width, this.modelCanvas.height)
-
-      this.faceList = this.resizedDetections.map(({ expressions, detection }) => ({
-        expressions,
-        area: detection.box,
-        name: '',
-      }))
-
-      // faceApi.draw.drawDetections(this.modelCanvas, this.resizedDetections)
-      // faceApi.draw.drawFaceLandmarks(this.modelCanvas, this.resizedDetections)
-      // faceApi.draw.drawFaceExpressions(this.modelCanvas, this.resizedDetections)
-    } catch (err) {
-      console.error(err)
-    }
+    })
   }
 }
 
 export const faceModel = new FaceModel()
 
-export const canvasToImage = (dom, { x, y, width, height }) => {
-  const image = new Image()
-  const canvas = document.createElement('canvas')
-  const ctx = canvas.getContext('2d')
+class CanvasToImage {
+  constructor(dom, area) {
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')
 
-  canvas.width = width
-  canvas.height = height
+    canvas.width = area.width
+    canvas.height = area.height
 
-  ctx.drawImage(dom, x, y, width, height, 0, 0, width, height)
+    ctx.drawImage(dom, area.x, area.y, area.width, area.height, 0, 0, area.width, area.height)
 
-  image.src = canvas.toDataURL()
+    this.dom = dom
+    this.canvas = canvas
+  }
 
-  return image
+  get image() {
+    const image = new Image()
+
+    image.src = this.canvas.toDataURL()
+
+    return image
+  }
+
+  get url() {
+    return this.canvas.toDataURL()
+  }
+
+  get convas() {
+    return this.canvas
+  }
+
+  blob() {
+    return new Promise((resolve) => {
+      this.canvas.toBlob((res) => {
+        resolve(res)
+      })
+    })
+  }
 }
+
+export const canvasToImage = (dom, area) => new CanvasToImage(dom, area)
 
 export const cropCanvas = (dom, { x, y, width, height }) => {
   const canvas = document.createElement('canvas')
@@ -122,38 +175,33 @@ export const cropCanvas = (dom, { x, y, width, height }) => {
   return canvas
 }
 
-export const borderCanvasImage = (dom, area, line = 2, color = '#c00000') =>
-  new Promise((resolve) => {
-    const canvas = document.createElement('canvas')
-    const ctx = canvas.getContext('2d')
-    const { x, y, width, height, bottomRight, topLeft } = area
+export const borderCanvasImage = (dom, area, line = 2, color = '#c00000') => {
+  const ctx = dom.getContext('2d')
+  const { x, y, width, height, bottomRight, topLeft } = area
 
-    canvas.width = dom.width
-    canvas.height = dom.height
+  ctx.fillStyle = color
 
-    ctx.fillStyle = color
+  // 라인 생성
+  ctx.fillRect(x, y, width, height)
+  ctx.clearRect(x + line, y + line, width - line * 2, height - line * 2)
 
-    // 라인 생성
-    ctx.fillRect(x, y, width, height)
-    ctx.clearRect(x + line, y + line, width - line * 2, height - line * 2)
+  // 로고 생성
+  ctx.fillRect(
+    bottomRight.x - (39 + line * 2),
+    bottomRight.y - (10 + line * 2),
+    39 + line * 2,
+    10 + line
+  )
+  ctx.font = '10px sans-serif'
+  ctx.strokeStyle = '#fff'
+  ctx.strokeText('Rsupport', bottomRight.x - 39 - line, bottomRight.y - line * 2)
 
-    // 로고 생성
-    ctx.fillRect(
-      bottomRight.x - (39 + line * 2),
-      bottomRight.y - (10 + line * 2),
-      39 + line * 2,
-      10 + line
-    )
-    ctx.font = '10px sans-serif'
-    ctx.strokeStyle = '#fff'
-    ctx.strokeText('Rsupport', bottomRight.x - 39 - line, bottomRight.y - line * 2)
+  // 이름 영역 생성
+  ctx.fillRect(topLeft.x, topLeft.y - (10 + line / 2), width, 10 + line)
 
-    // 이름 영역 생성
-    ctx.fillRect(topLeft.x, topLeft.y - (10 + line / 2), width, 10 + line)
-
-    const addName = (name) => {
+  return {
+    addName: (name) => {
       ctx.strokeText(name, topLeft.x + line, topLeft.y - line / 2)
-    }
-
-    return resolve({ result: canvas, crop: cropCanvas(canvas, area), addName })
-  })
+    },
+  }
+}

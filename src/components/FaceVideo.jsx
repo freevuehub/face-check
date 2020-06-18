@@ -1,9 +1,11 @@
-import React, { useState, useLayoutEffect } from 'react'
+import React, { useState } from 'react'
 import { Canvas } from './Canvas'
 import { CamVideo } from './CamVideo'
 import styled from 'styled-components'
 // import { postFaceCheck } from '../axios'
-import { faceModel, borderCanvasImage } from '../utils'
+import { faceModel, canvasToImage, fetchFaceImage } from '../utils'
+import { useDispatch, useSelector } from 'react-redux'
+import { updateImgUrlList } from '../module/faceList'
 
 const StyledFaceVideo = styled.div`
   border-radius: 20px;
@@ -13,6 +15,8 @@ const StyledFaceVideo = styled.div`
 `
 
 export const FaceVideo = () => {
+  const dispatch = useDispatch()
+  const { faceList } = useSelector((state) => state)
   const [ctx, setCtx] = useState()
   const [canvas, setCanvas] = useState()
   const handleFaceCanvasDrawReady = (dom) => {
@@ -26,59 +30,47 @@ export const FaceVideo = () => {
     canvas.height = dom.videoHeight
 
     const drawVideo = () => {
-      faceModel.run()
+      faceModel.drawArea('border')
 
       ctx.drawImage(dom, 0, 0, dom.videoWidth, dom.videoHeight)
-
-      faceModel.faceList.forEach(async (item, idx) => {
-        const { result, addName } = await borderCanvasImage(canvas, item.area)
-
-        addName('Loading...')
-
-        ctx.drawImage(result, 0, 0, dom.videoWidth, dom.videoHeight)
-      })
+      ctx.drawImage(faceModel.modelCanvas, 0, 0, dom.videoWidth, dom.videoHeight)
 
       setTimeout(drawVideo, 1000 / 60)
     }
-
-    drawVideo()
-  }
-
-  useLayoutEffect(() => {
-    const handleImageCheck = async () => {
-      if (canvas) {
-        // const a = faceModel.faceList.map(async (item) => {
-        //   const { crop, addName } = await borderCanvasImage(canvas, item.area)
-        //   addName('aa')
-        //   return crop
-        // })
-        // console.log(a)
-        // const res = await Promise.all(
-        //   faceModel.faceList.map(async (item) => {
-        //     const formData = new FormData()
-        //     // const blob = canvasToBlob(canvas, item.area, 'image/png')
-        //     // if (blob) {
-        //     //   formData.append('image', blob)
-        //     //   const res = await postFaceCheck(formData)
-        //     //   // dispatch(fetchLog(res))
-        //     //   return res
-        //     // } else {
-        //     //   return {}
-        //     // }
-        //   })
-        // )
-        // console.log(res)
-        // handleImageCheck()
+    const postImage = async () => {
+      if (!faceModel.resizedDetections.length) {
+        return setTimeout(postImage, 1000)
       }
+
+      const res = await Promise.all(
+        faceModel.resizedDetections.map(async ({ detection }) => {
+          const faceBlob = await canvasToImage(canvas, detection.box).blob()
+          const {
+            returnData: { faceRecognition },
+          } = await fetchFaceImage(faceBlob).next().value()
+
+          return faceRecognition[0]
+        })
+      )
+
+      faceModel.changeApiFaceList = res.filter((item) => !!item)
+
+      postImage()
     }
 
-    handleImageCheck()
-  }, [canvas])
+    drawVideo()
+    postImage()
+  }
 
   return (
-    <StyledFaceVideo>
-      <CamVideo onPlayReady={handleCamPlayReady} />
-      <Canvas onDrawReady={handleFaceCanvasDrawReady} />
-    </StyledFaceVideo>
+    <div>
+      <StyledFaceVideo>
+        <CamVideo onPlayReady={handleCamPlayReady} />
+        <Canvas onDrawReady={handleFaceCanvasDrawReady} />
+      </StyledFaceVideo>
+      {faceList.imgUrlList.map((url) => {
+        return <img src={url} alt="" />
+      })}
+    </div>
   )
 }
