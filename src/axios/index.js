@@ -2,7 +2,6 @@ import axios from 'axios'
 
 export const postAddImage = async (form) => {
   try {
-    console.log(form)
     const { data } = await axios.post('https://face.toybox7.net/api/register', form)
 
     return data

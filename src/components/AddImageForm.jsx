@@ -24,6 +24,15 @@ const StyledForm = styled.div`
       .thumb {
         display: flex;
         flex-direction: column;
+        width: 150px;
+        img {
+          display: block;
+          width: 100%;
+        }
+        canvas {
+          display: block;
+          width: 100%;
+        }
         button {
           margin-top: auto;
           margin-bottom: 20px;
@@ -34,36 +43,47 @@ const StyledForm = styled.div`
 `
 
 export const AddImageForm = () => {
-  const imageSize = { width: 150, height: 180 }
+  const imageSize = { width: 210, height: 270 }
   const [ctx, setCtx] = useState()
   const [canvas, setCanvas] = useState()
   const [image, setImage] = useState('')
   const [inputValue, setInputValue] = useState({
-    email: '',
-    username: '',
-    company: '',
-    belong: '',
+    email: { value: '', name: '이메일' },
+    username: { value: '', name: '이름' },
+    company: { value: '', name: '회사' },
+    belong: { value: '', name: '부서' },
   })
   const handleFormSubmit = async (event) => {
     event.preventDefault()
 
     try {
-      if (!inputValue.email) {
-        throw Error('이메일을 입력해주세요.')
-      } else if (!image) {
-        throw Error('이미지를 추가해주세요.')
+      if (!image) {
+        throw Error('이미지가 없습니다.')
       }
 
-      const formData = new FormData()
+      const objList = Object.entries(inputValue)
+      const check = objList.every((item) => {
+        if (!item[1].value) {
+          throw Error(`${item[1].name}을(를) 입력해주세요.`)
+        }
 
-      Object.entries(inputValue).forEach((item) => {
-        formData.append(item[0], item[1])
+        return !!item[1].value
       })
-      formData.append('image', image)
 
-      await postAddImage(formData)
+      if (check) {
+        const formData = new FormData()
 
-      alert('등록되었습니다.')
+        objList.forEach((item) => {
+          formData.append(item[0], item[1].value)
+        })
+        formData.append('image', image)
+
+        await postAddImage(formData)
+
+        alert('등록되었습니다.')
+      } else {
+        throw Error('알 수 없는 에러가 발생했습니다.')
+      }
     } catch (err) {
       alert(err)
     }
@@ -73,7 +93,7 @@ export const AddImageForm = () => {
       ...inputValue,
     }
 
-    changeValue[key] = value
+    changeValue[key].value = value
 
     setInputValue(changeValue)
   }
@@ -88,15 +108,17 @@ export const AddImageForm = () => {
     event.preventDefault()
 
     if (sendElement.getEl) {
-      if (faceModel.faceList.length > 1) {
+      if (faceModel.resizedDetections.length > 1) {
         return alert('인식된 얼굴이 많습니다. 한명만 인식되게 자리를 이동해주세요.')
-      } else if (!faceModel.faceList.length) {
+      } else if (!faceModel.resizedDetections.length) {
         return alert('인식된 얼굴이 없습니다.')
       }
 
+      const area = faceModel.resizedDetections[0].detection.box
+
       const crop = cropCanvas(sendElement.getEl, {
-        x: faceModel.faceList[0].area.x,
-        y: faceModel.faceList[0].area.y,
+        x: area.x - (imageSize.width - Math.round(area.width)) / 2,
+        y: area.y - (imageSize.height - Math.round(area.height)) / 2,
         ...imageSize,
       })
 
@@ -129,8 +151,8 @@ export const AddImageForm = () => {
                   key={item[0]}
                   onChange={(event) => handleInputChange(event.target.value, item[0])}
                   type="text"
-                  placeholder={item[0]}
-                  value={item[1]}
+                  placeholder={item[1].name}
+                  value={item[1].value}
                 />
               )
             })}

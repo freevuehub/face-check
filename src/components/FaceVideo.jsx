@@ -2,21 +2,26 @@ import React, { useState } from 'react'
 import { Canvas } from './Canvas'
 import { CamVideo } from './CamVideo'
 import styled from 'styled-components'
-// import { postFaceCheck } from '../axios'
 import { faceModel, canvasToImage, fetchFaceImage } from '../utils'
-import { useDispatch, useSelector } from 'react-redux'
-import { updateImgUrlList } from '../module/faceList'
 
 const StyledFaceVideo = styled.div`
   border-radius: 20px;
   background: #f2f2f2;
   box-shadow: 5px 5px 10px #cecece, -5px -5px 10px #ffffff;
   overflow: hidden;
+  min-width: 640px;
+  min-height: 480px;
+  @media screen and (max-width: 640px) {
+    min-width: unset;
+    min-height: unset;
+    width: 90vw;
+    canvas {
+      width: 100%;
+    }
+  }
 `
 
 export const FaceVideo = () => {
-  const dispatch = useDispatch()
-  const { faceList } = useSelector((state) => state)
   const [ctx, setCtx] = useState()
   const [canvas, setCanvas] = useState()
   const handleFaceCanvasDrawReady = (dom) => {
@@ -68,9 +73,6 @@ export const FaceVideo = () => {
         <CamVideo onPlayReady={handleCamPlayReady} />
         <Canvas onDrawReady={handleFaceCanvasDrawReady} />
       </StyledFaceVideo>
-      {faceList.imgUrlList.map((url) => {
-        return <img src={url} alt="" />
-      })}
     </div>
   )
 }

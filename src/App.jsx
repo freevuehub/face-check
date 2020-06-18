@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import { FaceVideo, AddImageForm, LogBox } from './components'
+import { FaceVideo, AddImageForm } from './components'
 
 const StyledApp = styled.section`
   height: 100%;
@@ -31,9 +31,7 @@ const App = () => {
     <StyledApp>
       <FaceVideo />
       <div className="remote">
-        <h4>얼굴인식은 아직 지원하지 않습니다. 얼굴 윤곽만 잡고 있습니다.</h4>
         <AddImageForm />
-        <LogBox />
       </div>
       <footer>
         FreeVue Copyright © 2020.
