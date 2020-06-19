@@ -6,7 +6,7 @@ const StyledFormItem = styled.div`
   box-shadow: inset 5px 5px 10px #cecece, inset -5px -5px 10px #ffffff;
   padding: 10px;
   border-radius: 5px;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
   input {
     height: 20px;
     background-color: transparent;

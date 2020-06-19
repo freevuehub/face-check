@@ -12,7 +12,6 @@ const StyledForm = styled.div`
   box-shadow: 5px 5px 10px #cecece, -5px -5px 10px #ffffff;
   padding: 20px;
   border-radius: 10px;
-  margin-bottom: 20px;
   form {
     width: 100%;
     .form {
@@ -47,6 +46,7 @@ export const AddImageForm = () => {
   const [ctx, setCtx] = useState()
   const [canvas, setCanvas] = useState()
   const [image, setImage] = useState('')
+  const [loading, setLoading] = useState(false)
   const [inputValue, setInputValue] = useState({
     email: { value: '', name: '이메일' },
     username: { value: '', name: '이름' },
@@ -70,21 +70,27 @@ export const AddImageForm = () => {
         return !!item[1].value
       })
 
-      if (check) {
-        const formData = new FormData()
-
-        objList.forEach((item) => {
-          formData.append(item[0], item[1].value)
-        })
-        formData.append('image', image)
-
-        await postAddImage(formData)
-
-        alert('등록되었습니다.')
-      } else {
+      if (!check) {
         throw Error('알 수 없는 에러가 발생했습니다.')
       }
+
+      setLoading(true)
+
+      const formData = new FormData()
+
+      objList.forEach((item) => {
+        formData.append(item[0], item[1].value)
+      })
+      formData.append('image', image)
+
+      await postAddImage(formData)
+
+      alert('등록되었습니다.')
+
+      setLoading(false)
     } catch (err) {
+      setLoading(false)
+
       alert(err)
     }
   }
@@ -107,6 +113,8 @@ export const AddImageForm = () => {
   const handleCamCapture = (event) => {
     event.preventDefault()
 
+    setLoading(true)
+
     if (sendElement.getEl) {
       if (faceModel.resizedDetections.length > 1) {
         return alert('인식된 얼굴이 많습니다. 한명만 인식되게 자리를 이동해주세요.')
@@ -127,6 +135,8 @@ export const AddImageForm = () => {
 
     canvas.toBlob((res) => {
       setImage(res)
+
+      setLoading(false)
     }, 'image/png')
   }
 
@@ -142,7 +152,9 @@ export const AddImageForm = () => {
                 <Canvas onDrawReady={handleCanvasDrawReady} />
               </>
             )}
-            <Button onClick={handleCamCapture}>캡쳐</Button>
+            <Button loading={loading} onClick={handleCamCapture}>
+              캡쳐
+            </Button>
           </div>
           <div>
             {Object.entries(inputValue).map((item) => {
@@ -158,7 +170,9 @@ export const AddImageForm = () => {
             })}
           </div>
         </div>
-        <Button type="accept">등록</Button>
+        <Button loading={loading} type="accept">
+          등록
+        </Button>
       </form>
     </StyledForm>
   )

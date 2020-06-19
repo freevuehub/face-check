@@ -88,7 +88,13 @@ export class FaceModel {
       .withFaceLandmarks()
       .withFaceExpressions()
 
-    this.resizedDetections = faceApi.resizeResults(detections, this.displaySize)
+    // console.log('이전 소스')
+    // console.log(this.resizedDetections)
+    // console.log('새로운 소스')
+    // console.log(faceApi.resizeResults(detections, this.displaySize))
+
+    // this.resizedDetections = faceApi.resizeResults(detections, this.displaySize)
+    this.resizedDetections = detections
 
     // console.log(this.apiFaceList, this.resizedDetections)
 
