@@ -65,7 +65,6 @@ export class FaceModel {
         faceApi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
         faceApi.nets.faceRecognitionNet.loadFromUri(MODEL_URL),
         faceApi.nets.faceExpressionNet.loadFromUri(MODEL_URL),
-        // faceApi.nets.ageGenderNet.loadFromUri(MODEL_URL),
       ])
 
       this.modelCanvas = faceApi.createCanvasFromMedia(this.videoDom)
@@ -75,6 +74,23 @@ export class FaceModel {
     } catch (err) {
       console.error(err)
     }
+  }
+
+  async distance(image) {
+    return Promise.all(
+      this.resizedDetections.map(async ({ detection }, idx) => {
+        const curImage = canvasToImage(this.modelCanvas, detection.box).image
+        const curImageFloat = await faceApi.computeFaceDescriptor(curImage)
+        const prevImageFloat = await faceApi.computeFaceDescriptor(image)
+        const distance = await faceApi.euclideanDistance(curImageFloat, prevImageFloat)
+
+        return {
+          idx,
+          distance,
+          same: distance > 0.5,
+        }
+      })
+    )
   }
 
   async drawArea(..._) {
@@ -89,8 +105,26 @@ export class FaceModel {
       .getContext('2d')
       .clearRect(0, 0, this.modelCanvas.width, this.modelCanvas.height)
 
+    // if (this.apiFaceList) {
+    //   this.apiFaceList = await Promise.all(
+    //     this.apiFaceList.map(async (prev, cur) => {
+    //       console.log(prev, cur)
+    //       const prevDistans = await this.distance(prev.image)
+    //       const curDistans = await this.distance(cur.image)
+
+    //       return 0
+    //     })
+    //   )
+    // }
+
     _.forEach((type) => {
       switch (type) {
+        case 'landmark':
+          faceApi.draw.drawFaceLandmarks(this.modelCanvas, this.resizedDetections)
+          break
+        case 'expressions':
+          faceApi.draw.drawFaceExpressions(this.modelCanvas, this.resizedDetections)
+          break
         case 'border':
           this.resizedDetections.forEach(({ detection }, idx) => {
             borderCanvasImage(this.modelCanvas, detection.box).addName(
@@ -98,14 +132,8 @@ export class FaceModel {
             )
           })
           break
-        case 'landmark':
-          faceApi.draw.drawFaceLandmarks(this.modelCanvas, this.resizedDetections)
-          break
         case 'default-border':
           faceApi.draw.drawDetections(this.modelCanvas, this.resizedDetections)
-          break
-        case 'expressions':
-          faceApi.draw.drawFaceExpressions(this.modelCanvas, this.resizedDetections)
           break
         default:
       }
