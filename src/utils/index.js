@@ -78,25 +78,12 @@ export class FaceModel {
   }
 
   async drawArea(..._) {
-    // this.apiFaceList.map((item) => {
-    //   console.log(item)
-
-    //   return item
-    // })
     const detections = await faceApi
       .detectAllFaces(this.videoDom, new faceApi.TinyFaceDetectorOptions())
       .withFaceLandmarks()
       .withFaceExpressions()
 
-    // console.log('이전 소스')
-    // console.log(this.resizedDetections)
-    // console.log('새로운 소스')
-    // console.log(faceApi.resizeResults(detections, this.displaySize))
-
-    // this.resizedDetections = faceApi.resizeResults(detections, this.displaySize)
-    this.resizedDetections = detections
-
-    // console.log(this.apiFaceList, this.resizedDetections)
+    this.resizedDetections = faceApi.resizeResults(detections, this.displaySize)
 
     this.modelCanvas
       .getContext('2d')
