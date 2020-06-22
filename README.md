@@ -1,8 +1,14 @@
-# Rsupport 얼굴 인식 기능
+# Rsupport 얼굴 인식 기술
 
-| 역할        | 이름   |
-| ----------- | ------ |
-| `back-end`  | 추은석 |
-| `front-end` | 홍성준 |
+| 역할        | 이름   | 소속           |
+| ----------- | ------ | -------------- |
+| `back-end`  | 추은석 | 하드웨어개발팀 |
+| `front-end` | 홍성준 | 연구기획팀     |
 
-[데모사이트](https://freevue-face-check.netlify.app/)
+## face-api.js
+
+> [https://justadudewhohacks.github.io/face-api.js/docs/index.html](https://justadudewhohacks.github.io/face-api.js/docs/index.html)
+
+## Demo
+
+> [https://freevue-face-check.netlify.app/](https://freevue-face-check.netlify.app/)
