@@ -38,7 +38,6 @@ export class FaceModel {
     this.videoDom = null
     this.displaySize = {}
     this.apiFaceList = []
-    this.currentFace = []
   }
 
   set changeVideoDom(videoDom) {
