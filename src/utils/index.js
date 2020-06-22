@@ -38,7 +38,6 @@ export class FaceModel {
     this.videoDom = null // 얼굴을 인식할 컨텐츠
     this.displaySize = {} // 얼굴을 인식한 캔버스의 크기
     this.apiFaceList = [] // 서버에서 매칭한 얼굴 모델
-    this.infoMessage = ''
   }
 
   set changeVideoDom(videoDom) {

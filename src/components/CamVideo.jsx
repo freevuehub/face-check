@@ -9,7 +9,6 @@ const StyledVideo = styled.video`
 export const CamVideo = (props) => {
   const $video = useRef()
   const handleVideoOnCanPlay = ({ target }) => {
-    console.log('handleVideoOnCanPlay')
     props.onPlayReady(target)
 
     sendElement.setEl = target

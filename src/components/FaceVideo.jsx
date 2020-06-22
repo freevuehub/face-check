@@ -40,14 +40,10 @@ export const FaceVideo = () => {
 
     await faceModel.init(dom)
 
-    setMessage('모델링을 완료했습니다.')
-
     canvas.width = dom.videoWidth
     canvas.height = dom.videoHeight
 
     ctx.drawImage(dom, 0, 0, dom.videoWidth, dom.videoHeight)
-
-    setMessage('얼굴 인식을 시작합니다.')
 
     const drawVideo = () => {
       faceModel.match(...type)
@@ -96,7 +92,7 @@ export const FaceVideo = () => {
     drawVideo()
     postImage()
 
-    setMessage('얼굴 인식중입니다.')
+    setMessage('얼굴을 인식하고 있습니다.')
   }
 
   return (
