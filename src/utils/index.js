@@ -138,15 +138,15 @@ export class FaceModel {
     if (this.apiFaceList.length) {
       this.apiFaceList.forEach((face) => {
         const faceMatcher = new faceApi.FaceMatcher(face.labeling, 0.6)
-        const result = this.resizedDetections.map((item) => {
+        const matcherRes = this.resizedDetections.map((item) => {
           return faceMatcher.findBestMatch(item.descriptor)
         })
 
-        result.forEach((result, idx) => {
+        matcherRes.forEach((resultItem, idx) => {
           const box = this.resizedDetections[idx].detection.box
 
           _.forEach((type) => {
-            this.drawArea(type, box, result.label)
+            this.drawArea(type, box, resultItem.label)
           })
         })
       })
