@@ -12,3 +12,7 @@
 ## Demo
 
 > [https://freevue-face-check.netlify.app/](https://freevue-face-check.netlify.app/)
+
+## API docs
+
+> [https://face.toybox7.net/](https://face.toybox7.net/)
