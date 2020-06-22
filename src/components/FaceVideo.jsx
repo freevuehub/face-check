@@ -38,7 +38,7 @@ export const FaceVideo = () => {
     ctx.drawImage(dom, 0, 0, dom.videoWidth, dom.videoHeight)
 
     const drawVideo = () => {
-      faceModel.drawArea('border') // landmark, expressions, border, default-border
+      faceModel.match('border') // landmark, expressions, border, default-border
 
       ctx.drawImage(dom, 0, 0, dom.videoWidth, dom.videoHeight)
       ctx.drawImage(faceModel.modelCanvas, 0, 0, dom.videoWidth, dom.videoHeight)
@@ -50,18 +50,28 @@ export const FaceVideo = () => {
         return setTimeout(postImage, 1000)
       }
 
+      const padding = 80
       const res = await Promise.all(
-        faceModel.resizedDetections.map(async ({ detection }) => {
-          const faceBlob = await canvasToImage(canvas, detection.box).blob()
+        faceModel.resizedDetections.map(async ({ detection: { box } }) => {
+          const width = box.width + padding
+          const height = box.height + padding + 30
+          const cropCanvas = canvasToImage(dom, {
+            x: box.x - (width - Math.round(box.width)) / 2,
+            y: box.y - (height - Math.round(box.height)) / 2,
+            width,
+            height,
+          })
+
+          const faceBlob = await cropCanvas.blob()
           const {
             returnData: { faceRecognition },
           } = await fetchFaceImage(faceBlob).next().value()
 
-          const faceImage = canvasToImage(canvas, detection.box).image
+          const image = cropCanvas.image
 
           return {
-            name: faceRecognition[0] ? faceRecognition[0].name : '일치하는 인물이 없습니다.',
-            image: faceImage,
+            name: faceRecognition[0] ? faceRecognition[0].name : 'No Match Face',
+            image,
           }
         })
       )

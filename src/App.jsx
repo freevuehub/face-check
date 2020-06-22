@@ -36,7 +36,7 @@ const App = () => {
       <footer>
         FreeVue Copyright © 2020.
         <br />
-        Made by 추은성-Backend, 홍성준-Frontend
+        Made by 추은석-Backend, 홍성준-Frontend
       </footer>
     </StyledApp>
   )

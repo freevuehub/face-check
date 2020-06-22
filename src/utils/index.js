@@ -38,6 +38,7 @@ export class FaceModel {
     this.videoDom = null
     this.displaySize = {}
     this.apiFaceList = []
+    this.currentFace = []
   }
 
   set changeVideoDom(videoDom) {
@@ -45,11 +46,18 @@ export class FaceModel {
   }
 
   set changeApiFaceList(apiFaceList) {
-    this.apiFaceList = apiFaceList
-  }
+    Promise.all(
+      apiFaceList.map(async (item) => {
+        const labeling = await this.labelingFace(apiFaceList)
 
-  get filterList() {
-    return this.apiFaceList
+        return {
+          ...item,
+          labeling,
+        }
+      })
+    ).then((res) => {
+      this.apiFaceList = res
+    })
   }
 
   async init(dom) {
@@ -65,6 +73,7 @@ export class FaceModel {
         faceApi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
         faceApi.nets.faceRecognitionNet.loadFromUri(MODEL_URL),
         faceApi.nets.faceExpressionNet.loadFromUri(MODEL_URL),
+        faceApi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL),
       ])
 
       this.modelCanvas = faceApi.createCanvasFromMedia(this.videoDom)
@@ -76,68 +85,76 @@ export class FaceModel {
     }
   }
 
-  async distance(image) {
-    return Promise.all(
-      this.resizedDetections.map(async ({ detection }, idx) => {
-        const curImage = canvasToImage(this.modelCanvas, detection.box).image
-        const curImageFloat = await faceApi.computeFaceDescriptor(curImage)
-        const prevImageFloat = await faceApi.computeFaceDescriptor(image)
-        const distance = await faceApi.euclideanDistance(curImageFloat, prevImageFloat)
+  async labelingFace(lsit) {
+    return await Promise.all(
+      lsit.map(async (item) => {
+        const description = []
+        const detections = await faceApi
+          .detectSingleFace(item.image)
+          .withFaceLandmarks()
+          .withFaceDescriptor()
 
-        return {
-          idx,
-          distance,
-          same: distance > 0.5,
+        if (detections) {
+          description.push(detections.descriptor)
         }
+
+        return new faceApi.LabeledFaceDescriptors(item.name, description)
       })
     )
   }
 
-  async drawArea(..._) {
+  drawArea(type, box, label) {
+    // const drawBox = new faceApi.draw.DrawBox(box, { label: label.toString() })
+
+    switch (type) {
+      case 'landmark':
+        return faceApi.draw.drawFaceLandmarks(this.modelCanvas, this.resizedDetections)
+      case 'expressions':
+        return faceApi.draw.drawFaceExpressions(this.modelCanvas, this.resizedDetections)
+      case 'border':
+        return borderCanvasImage(this.modelCanvas, box).addName(label)
+      case 'default-border':
+        return faceApi.draw.drawDetections(this.modelCanvas, this.resizedDetections)
+      default:
+    }
+  }
+
+  async match(..._) {
+    // 영상에 인식된 얼굴을 그린다.
     const detections = await faceApi
       .detectAllFaces(this.videoDom, new faceApi.TinyFaceDetectorOptions())
       .withFaceLandmarks()
       .withFaceExpressions()
-
-    this.resizedDetections = faceApi.resizeResults(detections, this.displaySize)
+      .withFaceDescriptors()
 
     this.modelCanvas
       .getContext('2d')
       .clearRect(0, 0, this.modelCanvas.width, this.modelCanvas.height)
 
-    // if (this.apiFaceList) {
-    //   this.apiFaceList = await Promise.all(
-    //     this.apiFaceList.map(async (prev, cur) => {
-    //       console.log(prev, cur)
-    //       const prevDistans = await this.distance(prev.image)
-    //       const curDistans = await this.distance(cur.image)
+    this.resizedDetections = faceApi.resizeResults(detections, this.displaySize)
 
-    //       return 0
-    //     })
-    //   )
-    // }
+    if (this.apiFaceList.length) {
+      this.apiFaceList.forEach((face) => {
+        const faceMatcher = new faceApi.FaceMatcher(face.labeling, 0.6)
+        const result = this.resizedDetections.map((item) => {
+          return faceMatcher.findBestMatch(item.descriptor)
+        })
 
-    _.forEach((type) => {
-      switch (type) {
-        case 'landmark':
-          faceApi.draw.drawFaceLandmarks(this.modelCanvas, this.resizedDetections)
-          break
-        case 'expressions':
-          faceApi.draw.drawFaceExpressions(this.modelCanvas, this.resizedDetections)
-          break
-        case 'border':
-          this.resizedDetections.forEach(({ detection }, idx) => {
-            borderCanvasImage(this.modelCanvas, detection.box).addName(
-              this.apiFaceList[idx] ? this.apiFaceList[idx].name : 'Loading'
-            )
+        result.forEach((result, idx) => {
+          const box = this.resizedDetections[idx].detection.box
+
+          _.forEach((type) => {
+            this.drawArea(type, box, result.label)
           })
-          break
-        case 'default-border':
-          faceApi.draw.drawDetections(this.modelCanvas, this.resizedDetections)
-          break
-        default:
-      }
-    })
+        })
+      })
+    } else {
+      this.resizedDetections.forEach(({ detection }) => {
+        _.forEach((type) => {
+          this.drawArea(type, detection.box, 'loading...')
+        })
+      })
+    }
   }
 }
 
