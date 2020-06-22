@@ -43,7 +43,7 @@ export const FaceVideo = () => {
       ctx.drawImage(dom, 0, 0, dom.videoWidth, dom.videoHeight)
       ctx.drawImage(faceModel.modelCanvas, 0, 0, dom.videoWidth, dom.videoHeight)
 
-      setTimeout(drawVideo, 1000 / 30)
+      setTimeout(drawVideo, 1000 / 60)
     }
     const postImage = async () => {
       if (!faceModel.resizedDetections.length) {
