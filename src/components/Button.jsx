@@ -9,7 +9,7 @@ const StyledButton = styled.button`
   width: 100%;
   background: linear-gradient(175deg, #ffffff, #dadada);
   box-shadow: 5px 5px 10px #cecece, -5px -5px 10px #ffffff;
-  min-height: 36px;
+  min-height: 40px;
   .active {
     &:active {
       background: linear-gradient(175deg, #dadada, #ffffff);

@@ -34,7 +34,7 @@ const StyledForm = styled.div`
         }
         button {
           margin-top: auto;
-          margin-bottom: 20px;
+          margin-bottom: 30px;
         }
       }
     }
