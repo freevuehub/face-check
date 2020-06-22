@@ -14,6 +14,7 @@ const StyledForm = styled.div`
   border-radius: 10px;
   form {
     width: 100%;
+    margin-bottom: 10px;
     .form {
       display: flex;
       justify-content: space-between;
@@ -38,6 +39,9 @@ const StyledForm = styled.div`
         }
       }
     }
+  }
+  p {
+    opacity: 0.5;
   }
 `
 
@@ -174,6 +178,7 @@ export const AddImageForm = () => {
           등록
         </Button>
       </form>
+      <p>안경을 벗고 등록하면 정확도가 올라갑니다.</p>
     </StyledForm>
   )
 }
