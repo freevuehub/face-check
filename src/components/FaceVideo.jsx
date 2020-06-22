@@ -25,6 +25,7 @@ const StyledFaceVideo = styled.div`
 export const FaceVideo = () => {
   const [ctx, setCtx] = useState()
   const [canvas, setCanvas] = useState()
+  const [type] = useState(['border']) // landmark, expressions, border, default-border
   const handleFaceCanvasDrawReady = (dom) => {
     setCanvas(dom)
     setCtx(dom.getContext('2d'))
@@ -38,7 +39,7 @@ export const FaceVideo = () => {
     ctx.drawImage(dom, 0, 0, dom.videoWidth, dom.videoHeight)
 
     const drawVideo = () => {
-      faceModel.match('border') // landmark, expressions, border, default-border
+      faceModel.match(...type)
 
       ctx.drawImage(dom, 0, 0, dom.videoWidth, dom.videoHeight)
       ctx.drawImage(faceModel.modelCanvas, 0, 0, dom.videoWidth, dom.videoHeight)

@@ -105,19 +105,18 @@ export class FaceModel {
   }
 
   // 타입별로 캔버스에 영역을 그림
-  drawArea(type, box, label) {
-    // const drawBox = new faceApi.draw.DrawBox(box, { label: label.toString() })
-
+  drawArea(type, faceDetection, label) {
     switch (type) {
       case 'landmark':
-        return faceApi.draw.drawFaceLandmarks(this.modelCanvas, this.resizedDetections)
+        return faceApi.draw.drawFaceLandmarks(this.modelCanvas, faceDetection)
       case 'expressions':
-        return faceApi.draw.drawFaceExpressions(this.modelCanvas, this.resizedDetections)
+        return faceApi.draw.drawFaceExpressions(this.modelCanvas, faceDetection)
       case 'border':
-        return borderCanvasImage(this.modelCanvas, box).addName(label)
+        return borderCanvasImage(this.modelCanvas, faceDetection.detection.box).addName(label)
       case 'default-border':
-        return faceApi.draw.drawDetections(this.modelCanvas, this.resizedDetections)
+        return faceApi.draw.drawDetections(this.modelCanvas, faceDetection)
       default:
+        return
     }
   }
 
@@ -143,17 +142,17 @@ export class FaceModel {
         })
 
         matcherRes.forEach((resultItem, idx) => {
-          const box = this.resizedDetections[idx].detection.box
+          const faceDetection = this.resizedDetections[idx]
 
           _.forEach((type) => {
-            this.drawArea(type, box, resultItem.label)
+            this.drawArea(type, faceDetection, resultItem.label)
           })
         })
       })
     } else {
-      this.resizedDetections.forEach(({ detection }) => {
+      this.resizedDetections.forEach((faceDetection) => {
         _.forEach((type) => {
-          this.drawArea(type, detection.box, 'loading...')
+          this.drawArea(type, faceDetection, 'loading...')
         })
       })
     }
