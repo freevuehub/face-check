@@ -38,6 +38,7 @@ export class FaceModel {
     this.videoDom = null // 얼굴을 인식할 컨텐츠
     this.displaySize = {} // 얼굴을 인식한 캔버스의 크기
     this.apiFaceList = [] // 서버에서 매칭한 얼굴 모델
+    this.infoMessage = ''
   }
 
   set changeVideoDom(videoDom) {
@@ -65,6 +66,8 @@ export class FaceModel {
         throw Error('미디어가 없습니다.')
       }
 
+      console.log('> 모델링을 시작합니다.')
+
       // 얼굴 인식 모델링
       await Promise.all([
         faceApi.nets.tinyFaceDetector.loadFromUri(MODEL_URL), // 얼굴 윤곽 모델링
@@ -74,11 +77,16 @@ export class FaceModel {
         faceApi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL), // 추가 얼굴 인식 모델링
       ])
 
+      console.log('> 모델링이 완료되었습니다.')
+      console.log('> 캔버스를 생성합니다.')
+
       // 얼굴을 인식한 영역을 그려줄 캔버스 생성과 설정
       this.modelCanvas = faceApi.createCanvasFromMedia(this.videoDom)
       this.displaySize = { width: this.videoDom.videoWidth, height: this.videoDom.videoHeight }
 
       faceApi.matchDimensions(this.modelCanvas, this.displaySize)
+
+      console.log('> 캔버스를 생성했습니다.')
     } catch (err) {
       console.error(err)
     }
@@ -127,7 +135,6 @@ export class FaceModel {
       .withFaceLandmarks()
       .withFaceExpressions()
       .withFaceDescriptors()
-
     this.modelCanvas
       .getContext('2d')
       .clearRect(0, 0, this.modelCanvas.width, this.modelCanvas.height)

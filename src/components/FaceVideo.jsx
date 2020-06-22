@@ -4,6 +4,10 @@ import { CamVideo } from './CamVideo'
 import styled from 'styled-components'
 import { faceModel, canvasToImage, fetchFaceImage } from '../utils'
 
+const StyledInfoMessage = styled.p`
+  margin-bottom: 20px;
+  font-size: 2rem;
+`
 const StyledFaceVideo = styled.div`
   border-radius: 20px;
   background: #f2f2f2;
@@ -25,18 +29,25 @@ const StyledFaceVideo = styled.div`
 export const FaceVideo = () => {
   const [ctx, setCtx] = useState()
   const [canvas, setCanvas] = useState()
+  const [message, setMessage] = useState('')
   const [type] = useState(['border']) // landmark, expressions, border, default-border
   const handleFaceCanvasDrawReady = (dom) => {
     setCanvas(dom)
     setCtx(dom.getContext('2d'))
   }
   const handleCamPlayReady = async (dom) => {
+    setMessage('모델링을 시작합니다.')
+
     await faceModel.init(dom)
+
+    setMessage('모델링을 완료했습니다.')
 
     canvas.width = dom.videoWidth
     canvas.height = dom.videoHeight
 
     ctx.drawImage(dom, 0, 0, dom.videoWidth, dom.videoHeight)
+
+    setMessage('얼굴 인식을 시작합니다.')
 
     const drawVideo = () => {
       faceModel.match(...type)
@@ -84,10 +95,13 @@ export const FaceVideo = () => {
 
     drawVideo()
     postImage()
+
+    setMessage('얼굴 인식중입니다.')
   }
 
   return (
     <div>
+      <StyledInfoMessage>{message}</StyledInfoMessage>
       <StyledFaceVideo>
         <CamVideo onPlayReady={handleCamPlayReady} />
         <Canvas onDrawReady={handleFaceCanvasDrawReady} />
