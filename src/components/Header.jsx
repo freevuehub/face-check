@@ -32,7 +32,9 @@ export const Header = (props) => {
         src="https://www.rsupport.com/ko-kr/wp-content/uploads/sites/2/2015/11/rsupport.svg"
         alt=""
       />
-      <Button onClick={handleAddImageClick}>사진 등록</Button>
+      <Button type="primary" onClick={handleAddImageClick}>
+        사진 등록
+      </Button>
     </StyledHeader>
   )
 }

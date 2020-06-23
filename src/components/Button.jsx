@@ -11,7 +11,7 @@ const StyledButton = styled.button`
   padding: 0 20px;
   .active {
     &:active {
-      background: linear-gradient(175deg, #dadada, #ffffff);
+      background: linear-gradient(175deg, #d5d7dd, #feffff);
     }
   }
   &.accept {
@@ -20,6 +20,15 @@ const StyledButton = styled.button`
     &.active {
       &:active {
         background: linear-gradient(175deg, #449e48, #51bb56);
+      }
+    }
+  }
+  &.primary {
+    background: linear-gradient(175deg, #5bc6ff, #4da7db);
+    color: #fff;
+    &.active {
+      &:active {
+        background: linear-gradient(175deg, #4da7db, #5bc6ff);
       }
     }
   }

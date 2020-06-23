@@ -165,7 +165,7 @@ export const AddImageForm = () => {
                 <Canvas onDrawReady={handleCanvasDrawReady} />
               </>
             )}
-            <Button loading={loading} onClick={handleCamCapture}>
+            <Button type="primary" loading={loading} onClick={handleCamCapture}>
               캡쳐
             </Button>
           </div>
