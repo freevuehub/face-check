@@ -9,26 +9,21 @@ import { postAddImage } from '../axios'
 const StyledForm = styled.div`
   position: fixed;
   right: 20px;
-  top: 80px;
+  top: 50px;
   min-width: 300px;
   z-index: 110;
-  background: #f2f2f2;
-  box-shadow: 0 5px 10px #cecece;
+  background: #edeff5;
+  box-shadow: 0px 5px 10px #c9cbd0;
   padding: 20px;
   border-radius: 10px;
   form {
     width: 100%;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
     .form {
-      display: flex;
-      justify-content: space-between;
-      div {
-        flex-basis: 45%;
-      }
       .thumb {
-        display: flex;
-        flex-direction: column;
         width: 150px;
+        margin: 0 auto;
+        margin-bottom: 20px;
         img {
           display: block;
           width: 100%;
@@ -37,15 +32,25 @@ const StyledForm = styled.div`
           display: block;
           width: 100%;
         }
-        button {
-          margin-top: auto;
-          margin-bottom: 30px;
-        }
       }
+    }
+    button {
+      width: 100%;
     }
   }
   p {
     opacity: 0.5;
+  }
+  &:before {
+    content: '';
+    display: block;
+    border-bottom: 8px solid #edeff5;
+    border-right: 8px solid transparent;
+    border-left: 8px solid transparent;
+    position: absolute;
+    top: -8px;
+    left: 245px;
+    transform: translateX(-50%);
   }
 `
 

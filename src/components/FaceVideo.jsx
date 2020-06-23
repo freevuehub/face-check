@@ -90,9 +90,9 @@ export const FaceVideo = () => {
     drawVideo()
     setMessage('모델링을 시작합니다.')
 
-    await faceModel.init(dom)
+    // await faceModel.init(dom)
 
-    postImage()
+    // postImage()
     setMessage('얼굴을 인식하고 있습니다.')
   }
 
