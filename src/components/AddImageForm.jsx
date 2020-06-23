@@ -7,9 +7,13 @@ import { sendElement, faceModel, cropCanvas } from '../utils'
 import { postAddImage } from '../axios'
 
 const StyledForm = styled.div`
+  position: fixed;
+  right: 20px;
+  top: 80px;
   min-width: 300px;
+  z-index: 110;
   background: #f2f2f2;
-  box-shadow: 5px 5px 10px #cecece, -5px -5px 10px #ffffff;
+  box-shadow: 0 5px 10px #cecece;
   padding: 20px;
   border-radius: 10px;
   form {

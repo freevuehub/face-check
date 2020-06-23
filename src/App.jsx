@@ -1,44 +1,46 @@
 import React from 'react'
 import styled from 'styled-components'
-import { FaceVideo, AddImageForm } from './components'
+import { FaceVideo, Header, AddImageForm } from './components'
 
 const StyledApp = styled.section`
+  display: flex;
   height: 100%;
+  overflow: hidden;
+  flex-direction: column;
+  background-color: #f2f2f2;
+`
+const StyledContainer = styled.article`
   position: relative;
   background-color: #f2f2f2;
   padding: 20px;
+  flex: 1;
   display: flex;
   justify-content: space-evenly;
   align-items: center;
-  flex-wrap: wrap;
-  overflow-y: scroll;
-  overflow-x: hidden;
-  .remote {
-    padding: 30px 0;
-    h4 {
-      text-align: center;
-      margin-bottom: 10px;
-    }
-  }
+  overflow: hidden;
   footer {
     margin-top: auto;
     width: 100%;
+    padding: 10px;
   }
 `
 
 const App = () => {
   return (
-    <StyledApp>
-      <FaceVideo />
-      <div className="remote">
-        <AddImageForm />
-      </div>
-      <footer>
-        FreeVue Copyright © 2020.
-        <br />
-        Made by 추은석-Backend, 홍성준-Frontend
-      </footer>
-    </StyledApp>
+    <>
+      <StyledApp>
+        <Header />
+        <StyledContainer>
+          <FaceVideo />
+        </StyledContainer>
+        <footer>
+          FreeVue Copyright © 2020.
+          <br />
+          Made by 추은석-Backend, 홍성준-Frontend
+        </footer>
+      </StyledApp>
+      <AddImageForm />
+    </>
   )
 }
 
