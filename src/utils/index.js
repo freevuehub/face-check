@@ -1,33 +1,4 @@
 import * as faceApi from 'face-api.js'
-import { postFaceCheck } from '../axios'
-
-export function* fetchFaceImage(value) {
-  while (true) {
-    yield async () => {
-      const formData = new FormData()
-
-      formData.append('image', value)
-
-      const response = await postFaceCheck(formData)
-
-      return response
-    }
-  }
-}
-
-class SendElement {
-  el = ''
-
-  set setEl(el) {
-    this.el = el
-  }
-
-  get getEl() {
-    return this.el
-  }
-}
-
-export const sendElement = new SendElement()
 
 export const MODEL_URL = '/models'
 
@@ -46,13 +17,10 @@ export class FaceModel {
 
   // API에서 받아온 데이터에 라벨링
   set changeApiFaceList(apiFaceList) {
-    Promise.all(
-      apiFaceList.map(async (item) => ({
-        ...item,
-        labeling: await this.labelingFace(apiFaceList),
-      }))
-    ).then((res) => {
-      this.apiFaceList = res
+    this.labelingFace(apiFaceList).then((res) => {
+      this.apiFaceList = res.map((face) => {
+        return new faceApi.FaceMatcher(face.labeling, 0.6)
+      })
     })
   }
 
@@ -71,8 +39,9 @@ export class FaceModel {
       await Promise.all([
         faceApi.nets.tinyFaceDetector.loadFromUri(MODEL_URL), // 얼굴 윤곽 모델링
         faceApi.nets.faceLandmark68Net.loadFromUri(MODEL_URL), // 얼굴 요소 모델링
-        faceApi.nets.faceRecognitionNet.loadFromUri(MODEL_URL), // 예상 나이(?) 모델링
         faceApi.nets.faceExpressionNet.loadFromUri(MODEL_URL), // 감정 모델링
+
+        faceApi.nets.faceRecognitionNet.loadFromUri(MODEL_URL), // 예상 나이(?) 모델링
         faceApi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL), // 추가 얼굴 인식 모델링
       ])
 
@@ -93,12 +62,12 @@ export class FaceModel {
 
   // 리스트를 받아와 라벨링
   // 인식된 영역과 API에 통신한 이미지를 비교하여 라벨링
-  async labelingFace(lsit) {
+  async labelingFace(faceLsit) {
     return await Promise.all(
-      lsit.map(async (item) => {
+      faceLsit.map(async (faceItem) => {
         const description = []
         const detections = await faceApi
-          .detectSingleFace(item.image)
+          .detectSingleFace(faceItem.image)
           .withFaceLandmarks()
           .withFaceDescriptor()
 
@@ -106,7 +75,10 @@ export class FaceModel {
           description.push(detections.descriptor)
         }
 
-        return new faceApi.LabeledFaceDescriptors(item.name, description)
+        return {
+          ...faceItem,
+          labeling: new faceApi.LabeledFaceDescriptors(faceItem.name, description),
+        }
       })
     )
   }
@@ -127,6 +99,18 @@ export class FaceModel {
     }
   }
 
+  buildDetections() {
+    return Promise(async (resolve) => {
+      const detections = await faceApi
+        .detectAllFaces(this.videoDom, new faceApi.TinyFaceDetectorOptions())
+        .withFaceLandmarks()
+        .withFaceExpressions()
+        .withFaceDescriptors()
+
+      resolve(detections)
+    })
+  }
+
   // 영상에 인식된 얼굴을 그린다.
   async match(..._) {
     const detections = await faceApi
@@ -134,6 +118,7 @@ export class FaceModel {
       .withFaceLandmarks()
       .withFaceExpressions()
       .withFaceDescriptors()
+
     this.modelCanvas
       .getContext('2d')
       .clearRect(0, 0, this.modelCanvas.width, this.modelCanvas.height)
@@ -141,20 +126,17 @@ export class FaceModel {
     this.resizedDetections = faceApi.resizeResults(detections, this.displaySize)
 
     if (this.apiFaceList.length) {
-      this.apiFaceList.forEach((face) => {
-        const faceMatcher = new faceApi.FaceMatcher(face.labeling, 0.6)
-        const matcherRes = this.resizedDetections.map((item) => {
-          return faceMatcher.findBestMatch(item.descriptor)
-        })
-
-        matcherRes.forEach((resultItem, idx) => {
-          const faceDetection = this.resizedDetections[idx]
-
-          _.forEach((type) => {
-            this.drawArea(type, faceDetection, resultItem.label)
-          })
-        })
-      })
+      // this.apiFaceList.forEach((face, idx) => {
+      //   const matcherRes = this.resizedDetections.map((item) => {
+      //     return face.findBestMatch(item.descriptor)
+      //   })
+      //   matcherRes.forEach((resultItem, idx) => {
+      //     const faceDetection = this.resizedDetections[idx]
+      //     _.forEach((type) => {
+      //       this.drawArea(type, faceDetection, resultItem.label)
+      //     })
+      //   })
+      // })
     } else {
       this.resizedDetections.forEach((faceDetection) => {
         _.forEach((type) => {
@@ -166,47 +148,6 @@ export class FaceModel {
 }
 
 export const faceModel = new FaceModel()
-
-class CanvasToImage {
-  constructor(dom, area) {
-    const canvas = document.createElement('canvas')
-    const ctx = canvas.getContext('2d')
-
-    canvas.width = area.width
-    canvas.height = area.height
-
-    ctx.drawImage(dom, area.x, area.y, area.width, area.height, 0, 0, area.width, area.height)
-
-    this.dom = dom
-    this.canvas = canvas
-  }
-
-  get image() {
-    const image = new Image()
-
-    image.src = this.canvas.toDataURL()
-
-    return image
-  }
-
-  get url() {
-    return this.canvas.toDataURL()
-  }
-
-  get convas() {
-    return this.canvas
-  }
-
-  blob() {
-    return new Promise((resolve) => {
-      this.canvas.toBlob((res) => {
-        resolve(res)
-      })
-    })
-  }
-}
-
-export const canvasToImage = (dom, area) => new CanvasToImage(dom, area)
 
 export const cropCanvas = (dom, { x, y, width, height }) => {
   const canvas = document.createElement('canvas')
@@ -250,3 +191,7 @@ export const borderCanvasImage = (dom, area, line = 2, color = '#c00000') => {
     },
   }
 }
+
+export * from './Generator'
+export * from './SendElement'
+export * from './CanvasToImage'

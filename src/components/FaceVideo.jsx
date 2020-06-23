@@ -36,20 +36,18 @@ export const FaceVideo = () => {
     setCtx(dom.getContext('2d'))
   }
   const handleCamPlayReady = async (dom) => {
-    setMessage('모델링을 시작합니다.')
-
-    await faceModel.init(dom)
-
     canvas.width = dom.videoWidth
     canvas.height = dom.videoHeight
 
     ctx.drawImage(dom, 0, 0, dom.videoWidth, dom.videoHeight)
 
     const drawVideo = () => {
-      faceModel.match(...type)
-
       ctx.drawImage(dom, 0, 0, dom.videoWidth, dom.videoHeight)
-      ctx.drawImage(faceModel.modelCanvas, 0, 0, dom.videoWidth, dom.videoHeight)
+
+      if (faceModel.modelCanvas) {
+        faceModel.match(...type)
+        ctx.drawImage(faceModel.modelCanvas, 0, 0, dom.videoWidth, dom.videoHeight)
+      }
 
       setTimeout(drawVideo, 1000 / 60)
     }
@@ -86,12 +84,15 @@ export const FaceVideo = () => {
 
       faceModel.changeApiFaceList = res.filter((item) => !!item)
 
-      postImage()
+      setTimeout(postImage, 1000)
     }
 
     drawVideo()
-    postImage()
+    setMessage('모델링을 시작합니다.')
 
+    await faceModel.init(dom)
+
+    postImage()
     setMessage('얼굴을 인식하고 있습니다.')
   }
 
