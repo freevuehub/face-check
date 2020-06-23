@@ -8,8 +8,8 @@ import { postAddImage } from '../axios'
 
 const StyledForm = styled.div`
   position: fixed;
-  right: 20px;
-  top: 50px;
+  right: 115px;
+  top: 10px;
   min-width: 300px;
   z-index: 110;
   background: #edeff5;
@@ -44,13 +44,13 @@ const StyledForm = styled.div`
   &:before {
     content: '';
     display: block;
-    border-bottom: 8px solid #edeff5;
-    border-right: 8px solid transparent;
-    border-left: 8px solid transparent;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-left: 8px solid #edeff5;
     position: absolute;
-    top: -8px;
-    left: 245px;
-    transform: translateX(-50%);
+    top: 10px;
+    right: -8px;
+    z-index: 120;
   }
 `
 
