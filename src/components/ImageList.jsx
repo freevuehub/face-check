@@ -8,6 +8,9 @@ const StyledItem = styled.div`
   overflow: hidden;
   margin: 0 20px;
   box-shadow: 5px 5px 5px #c9cbd0, -5px -5px 5px #ffffff;
+  &.on {
+    box-shadow: 5px 5px 30px #489dcf, -5px -5px 30px #62d5ff;
+  }
   img {
     display: block;
     width: 100%;
