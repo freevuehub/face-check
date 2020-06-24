@@ -13,7 +13,7 @@ const StyledForm = styled.div`
   min-width: 300px;
   z-index: 110;
   background: #edeff5;
-  box-shadow: 0px 5px 10px #c9cbd0;
+  box-shadow: 0px 3px 10px #c9cbd0;
   padding: 20px;
   border-radius: 10px;
   form {

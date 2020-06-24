@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
-import { FaceVideo, Header, AddImageForm } from './components'
+import { FaceVideo, Header, AddImageForm, ImageList } from './components'
 
 const StyledApp = styled.section`
   display: flex;
@@ -21,6 +21,7 @@ const StyledContainer = styled.article`
   display: flex;
   justify-content: space-evenly;
   align-items: center;
+  flex-direction: column;
   overflow: hidden;
 `
 
@@ -36,6 +37,7 @@ const App = () => {
         <Header onToggle={handleFormToggle} />
         <StyledContainer>
           <FaceVideo />
+          <ImageList />
         </StyledContainer>
         <footer>
           FreeVue Copyright © 2020.

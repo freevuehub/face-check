@@ -10,8 +10,7 @@ const StyledInfoMessage = styled.p`
 `
 const StyledFaceVideo = styled.div`
   border-radius: 20px;
-  background: #f2f2f2;
-  box-shadow: 5px 5px 10px #cecece, -5px -5px 10px #ffffff;
+  box-shadow: 5px 5px 5px #c9cbd0, -5px -5px 5px #ffffff;
   overflow: hidden;
   min-width: 640px;
   min-height: 480px;
@@ -98,7 +97,7 @@ export const FaceVideo = () => {
 
   return (
     <div>
-      <StyledInfoMessage>{message}</StyledInfoMessage>
+      {/* <StyledInfoMessage>{message}</StyledInfoMessage> */}
       <StyledFaceVideo>
         <CamVideo onPlayReady={handleCamPlayReady} />
         <Canvas onDrawReady={handleFaceCanvasDrawReady} />
