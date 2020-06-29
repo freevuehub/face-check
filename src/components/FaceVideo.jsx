@@ -4,7 +4,6 @@ import { CamVideo } from './CamVideo'
 import styled from 'styled-components'
 import { faceModel, canvasToImage } from '../utils'
 import { ImageContext } from '../store/ImageStore'
-import { FaceContext } from '../store/FaceStore'
 
 const StyledFaceVideo = styled.div`
   border-radius: 20px;
@@ -25,16 +24,33 @@ const StyledFaceVideo = styled.div`
 
 export const FaceVideo = () => {
   const imgCtx = useContext(ImageContext)
-  // const { changeDom } = useContext(FaceContext)
   const [canvas, setCanvas] = useState()
   const [type] = useState(['border']) // landmark, expressions, border, default-border\
+
+  const postImage = () => {
+    faceModel.changeApiFaceList = imgCtx.list.map(({ name, image }) => {
+      const width = image.width
+      const height = image.height
+      const cropCanvas = canvasToImage(image, {
+        x: image.x - (width - Math.round(image.width)) / 2,
+        y: image.y - (height - Math.round(image.height)) / 2,
+        width,
+        height,
+      })
+
+      const buildImage = cropCanvas.image
+
+      return {
+        name,
+        image: buildImage,
+      }
+    })
+  }
+
   const handleFaceCanvasDrawReady = (dom) => {
     setCanvas(dom)
   }
   const handleCamPlayReady = async (dom) => {
-    // faceCtx.videoDom = dom
-    // changeDom(dom)
-
     // const canvasOffscreen = canvas.transferControlToOffscreen()
     // const worker = new Worker('./Worker.js')
 
@@ -53,25 +69,6 @@ export const FaceVideo = () => {
       }
 
       setTimeout(drawVideo, 1000 / 60)
-    }
-    const postImage = () => {
-      faceModel.changeApiFaceList = imgCtx.list.map(({ name, image }) => {
-        const width = image.width
-        const height = image.height
-        const cropCanvas = canvasToImage(image, {
-          x: image.x - (width - Math.round(image.width)) / 2,
-          y: image.y - (height - Math.round(image.height)) / 2,
-          width,
-          height,
-        })
-
-        const buildImage = cropCanvas.image
-
-        return {
-          name,
-          image: buildImage,
-        }
-      })
     }
 
     drawVideo()

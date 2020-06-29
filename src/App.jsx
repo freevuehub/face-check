@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import { FaceVideo, Header, ImageList, LogBox } from './components'
+import { FaceVideo, Header, ImageList } from './components'
 import { AppProvider } from './store'
 
 const StyledApp = styled.section`

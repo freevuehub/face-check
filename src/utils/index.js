@@ -126,8 +126,10 @@ export class FaceModel {
     this.resizedDetections = faceApi.resizeResults(detections, this.displaySize)
 
     if (this.apiFaceList.length) {
-      this.apiFaceList.forEach((face) => {
-        const matcherRes = this.resizedDetections.map((item) => face.findBestMatch(item.descriptor))
+      this.apiFaceList.forEach((imageFace) => {
+        const matcherRes = this.resizedDetections.map((videoFace) => {
+          return imageFace.findBestMatch(videoFace.descriptor)
+        })
 
         matcherRes.forEach((resultItem, idx) => {
           _.forEach((type) => {
