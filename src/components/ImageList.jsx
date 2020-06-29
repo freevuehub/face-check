@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react'
 import styled from 'styled-components'
-import { ImageContext } from '../store'
+import { ImageContext } from '../store/ImageStore'
 
 const StyledItem = styled.div`
   width: 150px;
@@ -32,11 +32,11 @@ const StyledList = styled.div`
 `
 
 export const ImageList = () => {
-  const imgContext = useContext(ImageContext)
+  const imgCtx = useContext(ImageContext)
   const [imgsData] = useState([
     {
       name: '홍성준',
-      url: 'faces/d0c9859a27e14d729c22f6f283a2dcbf.jpg',
+      url: 'faces/15de6afbd43d4ed0a4fe0002667edde8.jpg',
     },
     {
       name: '심명현',
@@ -49,7 +49,7 @@ export const ImageList = () => {
   ])
 
   React.useEffect(() => {
-    if (!imgContext.list.length) {
+    if (!imgCtx.list.length) {
       imgsData.forEach((item) => {
         const image = new Image()
 
@@ -58,8 +58,8 @@ export const ImageList = () => {
         image.alt = item.name
 
         image.onload = (event) => {
-          imgContext.list = [
-            ...imgContext.list,
+          imgCtx.list = [
+            ...imgCtx.list,
             {
               image: event.target,
               ...item,
@@ -68,7 +68,7 @@ export const ImageList = () => {
         }
       })
     }
-  }, [imgContext, imgsData])
+  }, [imgCtx, imgsData])
 
   return (
     <StyledList>

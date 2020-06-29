@@ -1,25 +1,6 @@
-import React, { createContext } from 'react'
-
-export const ImageContext = createContext()
-export const FaceContext = createContext()
-
-class ImageProvider extends React.Component {
-  state = {
-    list: [],
-  }
-
-  render() {
-    return <ImageContext.Provider value={this.state}>{this.props.children}</ImageContext.Provider>
-  }
-}
-
-class FaceProvider extends React.Component {
-  state = {}
-
-  render() {
-    return <FaceContext.Provider value={this.state}>{this.props.children}</FaceContext.Provider>
-  }
-}
+import React from 'react'
+import ImageProvider from './ImageStore'
+import FaceProvider from './FaceStore'
 
 const AppProvider = ({ children }) => {
   return (

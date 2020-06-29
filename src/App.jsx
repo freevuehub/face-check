@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import { FaceVideo, Header, ImageList } from './components'
+import { FaceVideo, Header, ImageList, LogBox } from './components'
 import { AppProvider } from './store'
 
 const StyledApp = styled.section`
@@ -34,6 +34,7 @@ const App = () => {
     <AppProvider>
       <StyledApp>
         <Header />
+        {/* <LogBox /> */}
         <StyledContainer>
           <FaceVideo />
           <ImageList />
