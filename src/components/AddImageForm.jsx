@@ -116,7 +116,7 @@ export const AddImageForm = () => {
 
     setInputValue(changeValue)
   }
-  const handleCanvasDrawReady = (dom) => {
+  const handleCaptureCanvasDrawReady = (dom) => {
     dom.width = imageSize.width
     dom.height = imageSize.height
 
@@ -162,7 +162,7 @@ export const AddImageForm = () => {
               <img src={URL.createObjectURL(image)} alt="" />
             ) : (
               <>
-                <Canvas onDrawReady={handleCanvasDrawReady} />
+                <Canvas onDrawReady={handleCaptureCanvasDrawReady} />
               </>
             )}
             <Button type="primary" loading={loading} onClick={handleCamCapture}>

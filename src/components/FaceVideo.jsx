@@ -1,13 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 import { Canvas } from './Canvas'
 import { CamVideo } from './CamVideo'
 import styled from 'styled-components'
 import { faceModel, canvasToImage, fetchFaceImage } from '../utils'
+import { ImageContext } from '../store'
 
-const StyledInfoMessage = styled.p`
-  margin-bottom: 20px;
-  font-size: 2rem;
-`
 const StyledFaceVideo = styled.div`
   border-radius: 20px;
   box-shadow: 5px 5px 5px #c9cbd0, -5px -5px 5px #ffffff;
@@ -26,21 +23,23 @@ const StyledFaceVideo = styled.div`
 `
 
 export const FaceVideo = () => {
-  const [ctx, setCtx] = useState()
+  const matchImgs = useContext(ImageContext)
   const [canvas, setCanvas] = useState()
-  const [message, setMessage] = useState('')
-  const [type] = useState(['border']) // landmark, expressions, border, default-border
+  const [type] = useState(['border']) // landmark, expressions, border, default-border\
   const handleFaceCanvasDrawReady = (dom) => {
     setCanvas(dom)
-    setCtx(dom.getContext('2d'))
   }
   const handleCamPlayReady = async (dom) => {
+    // const canvasOffscreen = canvas.transferControlToOffscreen()
+    // const worker = new Worker('./Worker.js')
+
+    // worker.postMessage({ canvas: canvasOffscreen }, [canvasOffscreen])
     canvas.width = dom.videoWidth
     canvas.height = dom.videoHeight
 
-    ctx.drawImage(dom, 0, 0, dom.videoWidth, dom.videoHeight)
-
     const drawVideo = () => {
+      const ctx = canvas.getContext('2d')
+
       ctx.drawImage(dom, 0, 0, dom.videoWidth, dom.videoHeight)
 
       if (faceModel.modelCanvas) {
@@ -50,58 +49,37 @@ export const FaceVideo = () => {
 
       setTimeout(drawVideo, 1000 / 60)
     }
-    const postImage = async () => {
-      if (!faceModel.resizedDetections.length) {
-        return setTimeout(postImage, 1000)
-      }
-
-      const padding = 80
-      const res = await Promise.all(
-        faceModel.resizedDetections.map(async ({ detection: { box } }) => {
-          const width = box.width + padding
-          const height = box.height + padding + 30
-          const cropCanvas = canvasToImage(dom, {
-            x: box.x - (width - Math.round(box.width)) / 2,
-            y: box.y - (height - Math.round(box.height)) / 2,
-            width,
-            height,
-          })
-
-          const faceBlob = await cropCanvas.blob()
-          const {
-            returnData: { faceRecognition },
-          } = await fetchFaceImage(faceBlob).next().value()
-
-          const image = cropCanvas.image
-
-          return {
-            name: faceRecognition[0] ? faceRecognition[0].name : 'No Match Face',
-            image,
-          }
+    const postImage = () => {
+      faceModel.changeApiFaceList = matchImgs.list.map(({ name, image }) => {
+        const width = image.width
+        const height = image.height
+        const cropCanvas = canvasToImage(image, {
+          x: image.x - (width - Math.round(image.width)) / 2,
+          y: image.y - (height - Math.round(image.height)) / 2,
+          width,
+          height,
         })
-      )
 
-      faceModel.changeApiFaceList = res.filter((item) => !!item)
+        const buildImage = cropCanvas.image
 
-      setTimeout(postImage, 1000)
+        return {
+          name,
+          image: buildImage,
+        }
+      })
     }
 
     drawVideo()
-    setMessage('모델링을 시작합니다.')
 
-    // await faceModel.init(dom)
+    await faceModel.init(dom)
 
-    // postImage()
-    setMessage('얼굴을 인식하고 있습니다.')
+    postImage()
   }
 
   return (
-    <div>
-      {/* <StyledInfoMessage>{message}</StyledInfoMessage> */}
-      <StyledFaceVideo>
-        <CamVideo onPlayReady={handleCamPlayReady} />
-        <Canvas onDrawReady={handleFaceCanvasDrawReady} />
-      </StyledFaceVideo>
-    </div>
+    <StyledFaceVideo>
+      <CamVideo onPlayReady={handleCamPlayReady} />
+      <Canvas onDrawReady={handleFaceCanvasDrawReady} />
+    </StyledFaceVideo>
   )
 }

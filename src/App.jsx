@@ -1,13 +1,17 @@
-import React, { useState } from 'react'
+import React from 'react'
 import styled from 'styled-components'
-import { FaceVideo, Header, AddImageForm, ImageList } from './components'
+import { FaceVideo, Header, ImageList } from './components'
+import { AppProvider } from './store'
 
 const StyledApp = styled.section`
   display: flex;
   height: 100%;
   overflow: hidden;
   flex-direction: column;
-  background: #edeff5;
+  --background: #edeff5;
+  background-image: url('./image/bg.jpg');
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
   footer {
     width: 100%;
     padding: 10px;
@@ -26,15 +30,10 @@ const StyledContainer = styled.article`
 `
 
 const App = () => {
-  const [formView, setFormView] = useState(false)
-  const handleFormToggle = () => {
-    setFormView(!formView)
-  }
-
   return (
-    <>
+    <AppProvider>
       <StyledApp>
-        <Header onToggle={handleFormToggle} />
+        <Header />
         <StyledContainer>
           <FaceVideo />
           <ImageList />
@@ -45,8 +44,7 @@ const App = () => {
           Made by 추은석-Backend, 홍성준-Frontend
         </footer>
       </StyledApp>
-      {formView && <AddImageForm />}
-    </>
+    </AppProvider>
   )
 }
 

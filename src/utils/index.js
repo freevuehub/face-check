@@ -19,7 +19,7 @@ export class FaceModel {
   set changeApiFaceList(apiFaceList) {
     this.labelingFace(apiFaceList).then((res) => {
       this.apiFaceList = res.map((face) => {
-        return new faceApi.FaceMatcher(face.labeling, 0.6)
+        return new faceApi.FaceMatcher(face.labeling, 0.5)
       })
     })
   }
@@ -126,17 +126,15 @@ export class FaceModel {
     this.resizedDetections = faceApi.resizeResults(detections, this.displaySize)
 
     if (this.apiFaceList.length) {
-      // this.apiFaceList.forEach((face, idx) => {
-      //   const matcherRes = this.resizedDetections.map((item) => {
-      //     return face.findBestMatch(item.descriptor)
-      //   })
-      //   matcherRes.forEach((resultItem, idx) => {
-      //     const faceDetection = this.resizedDetections[idx]
-      //     _.forEach((type) => {
-      //       this.drawArea(type, faceDetection, resultItem.label)
-      //     })
-      //   })
-      // })
+      this.apiFaceList.forEach((face) => {
+        const matcherRes = this.resizedDetections.map((item) => face.findBestMatch(item.descriptor))
+
+        matcherRes.forEach((resultItem, idx) => {
+          _.forEach((type) => {
+            this.drawArea(type, this.resizedDetections[idx], resultItem.label)
+          })
+        })
+      })
     } else {
       this.resizedDetections.forEach((faceDetection) => {
         _.forEach((type) => {

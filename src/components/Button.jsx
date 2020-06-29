@@ -6,7 +6,7 @@ const StyledButton = styled.button`
   display: block;
   border-radius: 5px;
   background: linear-gradient(175deg, #feffff, #d5d7dd);
-  box-shadow: 5px 5px 5px #c9cbd0, -5px -5px 5px #ffffff;
+  --box-shadow: 5px 5px 5px #c9cbd0, -5px -5px 5px #ffffff;
   height: 25px;
   padding: 0 20px;
   .active {

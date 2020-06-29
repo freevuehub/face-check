@@ -1,12 +1,13 @@
 class CanvasToImage {
   constructor(dom, area) {
     const canvas = document.createElement('canvas')
-    const ctx = canvas.getContext('2d')
 
     canvas.width = area.width
     canvas.height = area.height
 
-    ctx.drawImage(dom, area.x, area.y, area.width, area.height, 0, 0, area.width, area.height)
+    canvas
+      .getContext('2d')
+      .drawImage(dom, area.x, area.y, area.width, area.height, 0, 0, area.width, area.height)
 
     this.dom = dom
     this.canvas = canvas
@@ -15,7 +16,7 @@ class CanvasToImage {
   get image() {
     const image = new Image()
 
-    image.src = this.canvas.toDataURL()
+    image.src = this.url
 
     return image
   }

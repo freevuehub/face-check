@@ -1,5 +1,6 @@
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 import styled from 'styled-components'
+import { ImageContext } from '../store'
 
 const StyledItem = styled.div`
   width: 150px;
@@ -17,10 +18,11 @@ const StyledItem = styled.div`
   }
 `
 
+const baseUrl = 'https://face.toybox7.net/'
 const ImageItem = (props) => {
   return (
     <StyledItem>
-      <img src={`https://face.toybox7.net/${props.url}`} alt={props.name} />
+      <img src={`${baseUrl}${props.url}`} alt={props.name} />
     </StyledItem>
   )
 }
@@ -30,24 +32,47 @@ const StyledList = styled.div`
 `
 
 export const ImageList = () => {
-  const [images] = useState([
+  const imgContext = useContext(ImageContext)
+  const [imgsData] = useState([
     {
       name: '홍성준',
-      url: 'faces/1f91ed3ed4a94659a6af8cb07c9ebe72.jpg',
+      url: 'faces/d0c9859a27e14d729c22f6f283a2dcbf.jpg',
+    },
+    {
+      name: '염종환',
+      url: 'faces/a2bcbcf71c8e412f9a82f3d980728980.jpg',
     },
     {
       name: '박지현',
       url: 'faces/fcc6d90226cc4c3cac94baab19a77825.jpg',
     },
-    {
-      name: '조지현',
-      url: 'faces/9a2f2845321942a68a7ce7c84a529f3c.jpg',
-    },
   ])
+
+  React.useEffect(() => {
+    if (!imgContext.list.length) {
+      imgsData.forEach((item) => {
+        const image = new Image()
+
+        image.src = `${baseUrl}${item.url}`
+        image.crossOrigin = 'anonymous'
+        image.alt = item.name
+
+        image.onload = (event) => {
+          imgContext.list = [
+            ...imgContext.list,
+            {
+              image: event.target,
+              ...item,
+            },
+          ]
+        }
+      })
+    }
+  }, [imgContext, imgsData])
 
   return (
     <StyledList>
-      {images.map((item) => (
+      {imgsData.map((item) => (
         <ImageItem key={item.url} {...item} />
       ))}
     </StyledList>

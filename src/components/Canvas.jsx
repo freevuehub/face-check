@@ -6,11 +6,13 @@ const StyleCanvas = styled.canvas`
 `
 
 export const Canvas = (props) => {
-  const $canvas = useRef()
+  const $canvas = useRef(null)
 
   useLayoutEffect(() => {
-    props.onDrawReady($canvas.current)
-  })
+    const { current } = $canvas
+
+    props.onDrawReady(current)
+  }, [$canvas, props])
 
   return <StyleCanvas ref={$canvas}>해당 브라우저는 지원하지 않습니다.</StyleCanvas>
 }
