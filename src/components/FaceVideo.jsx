@@ -2,12 +2,12 @@ import React, { useState, useContext } from 'react'
 import { Canvas } from './Canvas'
 import { CamVideo } from './CamVideo'
 import styled from 'styled-components'
-import { faceModel, canvasToImage, fetchFaceImage } from '../utils'
+import { faceModel, canvasToImage } from '../utils'
 import { ImageContext } from '../store'
 
 const StyledFaceVideo = styled.div`
   border-radius: 20px;
-  box-shadow: 5px 5px 5px #c9cbd0, -5px -5px 5px #ffffff;
+  box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.3);
   overflow: hidden;
   min-width: 640px;
   min-height: 480px;

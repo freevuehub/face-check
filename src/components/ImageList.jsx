@@ -8,7 +8,7 @@ const StyledItem = styled.div`
   border-radius: 50%;
   overflow: hidden;
   margin: 0 20px;
-  box-shadow: 5px 5px 5px #c9cbd0, -5px -5px 5px #ffffff;
+  box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.3);
   &.on {
     box-shadow: 5px 5px 30px #489dcf, -5px -5px 30px #62d5ff;
   }
@@ -39,8 +39,8 @@ export const ImageList = () => {
       url: 'faces/d0c9859a27e14d729c22f6f283a2dcbf.jpg',
     },
     {
-      name: '염종환',
-      url: 'faces/a2bcbcf71c8e412f9a82f3d980728980.jpg',
+      name: '심명현',
+      url: 'faces/d3a2dca1844e42f8bdad99e8b58b8d4c.jpg',
     },
     {
       name: '박지현',
